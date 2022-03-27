@@ -6,8 +6,53 @@
           <h1 class="text-3xl font-bold text-gray-900">
             {{ route.params.id ? model.title : "Create a Survey" }}
           </h1>
+          <div class="flex">
+            <a
+              :href="`/view/survey/${model.slug}`"
+              target="_blank"
+              v-if="model.slug"
+              class="flex px-4 py-2 mr-2 text-sm text-indigo-500 transition-colors border border-transparent rounded-md hover:bg-indigo-700 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              View Public link
+            </a>
+            <button
+              v-if="route.params.id"
+              type="button"
+              @click="deleteSurvey()"
+              class="px-3 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="inline-block w-5 h-5 -mt-1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Delete Survey
+            </button>
+          </div>
         </div>
       </template>
+      <div v-if="surveyLoading" class="flex justify-center">Loading...</div>
       <form v-else @submit.prevent="saveSurvey" class="animate-fade-in-down">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
           <!-- Survey Fields -->
@@ -195,29 +240,47 @@
 </template>
 
 <script setup>
-import { store } from "../store";
-import { ref } from "vue";
+import store from "../store";
+import { computed, ref, watch } from "vue";
 import { v4 as uuidv4 } from "uuid";
-import { useRoute,useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import PageComponent from "../components/PageComponent.vue";
 import QuestionEditor from "../components/editor/QuestionEditor.vue";
 
 const route = useRoute();
 const router = useRouter();
-
+const surveyLoading = computed(() => store.state.currentSurvey.loading);
 let model = ref({
   title: "",
   status: false,
   description: null,
-  image: null,
+  image_url: null,
   expire_date: null,
   questions: [],
 });
 
+// TODO learn this watch code
+watch(
+  () => store.state.currentSurvey.data,
+  (newVal, oldVal) => {
+    model.value = {
+      ...JSON.parse(JSON.stringify(newVal)),
+      status: newVal.status !== "draft",
+    };
+  }
+);
 if (route.params.id) {
-  model.value = store.state.surveys.find(
-    (s) => s.id === parseInt(route.params.id)
-  );
+  store.dispatch("getSurvey", route.params.id);
+}
+
+function onImageChoose(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    model.value.image = reader.result;
+    model.value.image_url = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function addQuestion(index) {
@@ -232,25 +295,38 @@ function addQuestion(index) {
 }
 
 function deleteQuestion(question) {
-  model.value.questions = model.value.questions.filter((q) => q.id !== question.id);
+  model.value.questions = model.value.questions.filter(
+    (q) => q.id !== question.id
+  );
 }
 function questionChange(question) {
-  model.value.questions = model.value.questions.map((q)=>{
-    if(q.id===question.id){
-      return JSON.parse(JSON.stringify(question))
+  model.value.questions = model.value.questions.map((q) => {
+    if (q.id === question.id) {
+      return JSON.parse(JSON.stringify(question));
     }
-    return q
+    return q;
   });
 }
 
 //create or update survey
-function saveSurvey(){
-  store.dispatch('saveSurvey',model.value).then(({data})=>{
+function saveSurvey() {
+  store.dispatch("saveSurvey", model.value).then(({ data }) => {
     router.push({
-      name:"SurveyView",
-      params:{id:data.data.id}
-    })
-  })
+      name: "SurveyView",
+      params: { id: data.data.id },
+    });
+  });
+}
+
+//delete survey
+function deleteSurvey() {
+  if (confirm("Are you sure")) {
+    store.dispatch("deleteSurvey", model.value.id).then(() => {
+      router.push({
+        name: "Surveys",
+      });
+    });
+  }
 }
 </script>
 

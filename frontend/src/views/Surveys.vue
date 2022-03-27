@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Surveys</h1>
         <router-link
           :to="{ name: 'SurveyCreate' }"
-          class="px-3 py-2 text-white rounded-md  bg-emerald-500 hover:bg-emerald-600"
+          class="px-3 py-2 text-white rounded-md bg-emerald-500 hover:bg-emerald-600"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -26,103 +26,37 @@
       </div></template
     >
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-      <div
-        v-for="survey in surveys"
-        :key="survey.id"
-        class="
-          flex flex-col
-          py-4
-          px-6
-          shadow-md
-          bg-white
-          hover:bg-gray-50
-          h-[470px]
-        "
-      >
-        <img
-          :src="
-            survey.image_url ||
-            'https://st3.depositphotos.com/23594922/31822/v/600/depositphotos_318221368-stock-illustration-missing-picture-page-for-website.jpg'
-          "
-          :alt="survey.title"
-          class="object-cover w-full h-48"
+         <SurveyListItem
+          v-for="(survey, ind) in surveys"
+          :key="survey.id"
+          :survey="survey"
+          class="opacity-1 animate-fade-in-down"
+          :style="{ animationDelay: `${ind * 0.1}s` }"
+          @delete="deleteSurvey(survey)"
         />
-        <h4 class="mt-4 text-lg font-bold">{{ survey.title }}</h4>
-        <div v-html="survey.description" class="flex-1 overflow-hidden"></div>
-        <div class="flex items-center justify-between mt-3">
-          <router-link
-            :to="{ name: 'SurveyView', params: { id: survey.id } }"
-            class="flex px-4 py-2 text-sm text-white bg-indigo-600 border border-transparent rounded-md  hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-5 h-5 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-            Edit
-          </router-link>
-          <div class="flex items-center">
-            <a
-              :href="`/view/survey/${survey.slug}`"
-              target="_blank"
-              class="flex items-center justify-center w-8 h-8 text-sm text-indigo-500 border border-transparent rounded-full  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
-            <button
-              v-if="survey.id"
-              type="button"
-              @click="emit('delete', survey)"
-              class="flex items-center justify-center w-8 h-8 text-sm text-red-500 border border-transparent rounded-full  focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </PageComponent>
 </template>
 
 <script setup>
-import { store } from "../store";
+import store from "../store";
 import { computed } from "vue";
 import PageComponent from "../components/PageComponent.vue";
+import SurveyListItem from "../components/SurveyListItem.vue";
 
-const surveys = computed(() => store.state.surveys);
+
+const surveys = computed(() => store.state.surveys.data);
+
+store.dispatch("getSurveys");
+
+//delete survey
+function deleteSurvey(survey) {
+  if (confirm("Are you sure")) {
+    store.dispatch("deleteSurvey", survey.id).then(() => {
+           store.dispatch("getSurveys");
+    });
+  }
+}
 </script>
 
 <style lang="scss" scoped>
