@@ -10,19 +10,26 @@ const store = createStore({
         },
         surveys: {
             loading: false,
+            links: [],
             data: []
         },
         questionTypes: ['text', 'select', 'radio', 'checkbox', 'textarea'],
         currentSurvey: {
             loading: false,
             data: {}
+        },
+        notification: {
+            show: false,
+            type: null,
+            message: null
         }
     },
     getters: {},
     actions: {
-        getSurveys({ commit }) {
+        getSurveys({ commit }, { url = null } = {}) {
+            url = url || '/survey'
             commit("setSurveysLoading", true)
-            return axiosClient.get('/survey').then((res) => {
+            return axiosClient.get(url).then((res) => {
                 commit("setSurveysLoading", false)
                 commit("setSurveys", res.data)
 
@@ -64,6 +71,23 @@ const store = createStore({
         deleteSurvey({ }, id) {
             return axiosClient.delete(`/survey/${id}`)
         },
+        getSurveyBySlug({ commit }, slug) {
+            commit("setCurrentSurveyLoading", true)
+            return axiosClient.get(`/survey-by-slug/${slug}`)
+            .then((res)=>{
+                commit('setCurrentSurvey', res.data);
+                commit("setCurrentSurveyLoading", false)
+                return res;
+            })
+            .catch((err) => {
+                commit("setCurrentSurveyLoading", false)
+                throw err
+            })
+        },
+
+        saveSurveyAnswer({commit},{surveyId,answers}){
+                return axiosClient.post(`/survey/${surveyId}/answer`,{answers})
+        },
         register({ commit }, user) {
             return axiosClient.post('/register', user)
                 .then(({ data }) => {
@@ -97,6 +121,7 @@ const store = createStore({
             state.currentSurvey.loading = loading
         },
         setSurveys: (state, surveys) => {
+            state.surveys.links = surveys.meta.links
             state.surveys.data = surveys.data
         },
         setCurrentSurvey: (state, survey) => {
@@ -116,6 +141,15 @@ const store = createStore({
             state.user.token = token;
             sessionStorage.setItem('TOKEN', token);
         },
+        notify: (state, { message, type }) => {
+            state.notification.show = true;
+            state.notification.type = type;
+            state.notification.message = message;
+            setTimeout(() => {
+                state.notification.show = false;
+            }, 3000)
+        },
+
     },
     modules: {}
 })
