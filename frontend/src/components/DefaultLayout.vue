@@ -1,13 +1,4 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-  <!--
-    This example requires updating your template:
-
-    ```
-    <html class="h-full bg-gray-100">
-    <body class="h-full">
-    ```
-  -->
   <div class="min-h-full">
     <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
       <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -193,7 +184,7 @@ import Notification from "./Notification.vue";
 
 const navigation = [
   { name: "Dashboard", to: { name: "Dashboard" } },
-  { name: "surveys", to: { name: "Surveys" } },
+  { name: "Surveys", to: { name: "Surveys" } },
 ];
 
 export default {

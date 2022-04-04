@@ -25,6 +25,7 @@
         </router-link>
       </div>
     </template>
+    <div v-if="surveys.data.length">
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
       <SurveyListItem
         v-for="(survey, index) in surveys.data"
@@ -40,7 +41,6 @@
         class="relative z-0 inline-flex justify-center -space-x-px rounded-md shadow-sm"
         aria-label="Pagination"
       >
-        <!-- Current: "z-10 bg-indigo-50 border-indigo-500 text-indigo-600", Default: "bg-white border-gray-300 text-gray-500 hover:bg-gray-50" -->
         <a
           v-for="(link, i) of surveys.links"
           :key="i"
@@ -59,6 +59,10 @@
           v-html="link.label"
         ></a>
       </nav>
+    </div>
+    </div>
+    <div class="flex justify-center" v-else>
+      No data...
     </div>
   </PageComponent>
 </template>

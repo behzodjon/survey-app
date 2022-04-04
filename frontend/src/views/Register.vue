@@ -19,7 +19,7 @@
       </router-link>
     </p>
   </div>
-  <form class="mt-8 space-y-6" @submit="register">
+  <form class="mt-8 space-y-6" @submit.prevent="register">
     <Alert v-if="Object.keys(errors).length" class="flex-col items-stretch text-sm">
       <div v-for="(field, i) of Object.keys(errors)" :key="i">
         <div v-for="(error, ind) of errors[field] || []" :key="ind">
@@ -28,16 +28,13 @@
       </div>
     </Alert>
 
-    <input type="hidden" name="remember" value="true" />
     <div class="-space-y-px rounded-md shadow-sm">
       <div>
-        <label for="fullname" class="sr-only">Email address</label>
+        <label for="fullname" class="sr-only">Full name</label>
         <input
           id="fullname"
-          name="name"
           type="text"
-          autocomplete="name"
-          required=""
+          required
           v-model="user.name"
           class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Full name"
@@ -47,10 +44,8 @@
         <label for="email-address" class="sr-only">Email address</label>
         <input
           id="email-address"
-          name="email"
           type="email"
-          autocomplete="email"
-          required=""
+          required
           v-model="user.email"
           class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           :class="{ 'border-red-500': errors.email, 'z-10': errors.email }"
@@ -61,10 +56,8 @@
         <label for="password" class="sr-only">Password</label>
         <input
           id="password"
-          name="password"
           type="password"
-          autocomplete="current-password"
-          required=""
+          required
           v-model="user.password"
           class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Password"
@@ -75,10 +68,8 @@
         <label for="password_confirmation" class="sr-only">Password</label>
         <input
           id="password_confirmation"
-          name="password_confirmation"
           type="password"
-          autocomplete="current-password"
-          required=""
+          required
           v-model="user.password_confirmation"
           class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Confirm Password"

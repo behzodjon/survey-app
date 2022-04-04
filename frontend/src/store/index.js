@@ -30,18 +30,24 @@ const store = createStore({
     },
     getters: {},
     actions: {
+        getUser({ commit }) {
+            return axiosClient.get('/user')
+                .then(res => {
+                    commit('setUser', res.data)
+                })
+        },
         getDashboardData({ commit }) {
             commit("dashboardLoading", true)
             return axiosClient.get('/dashboard')
-            .then((res)=>{
-                commit("dashboardLoading", false)
-                commit("setDashboardData", res.data)
-                return res;
-            })
-            .catch((err) => {
-                commit("setCurrentSurveyLoading", false)
-                return err
-            })
+                .then((res) => {
+                    commit("dashboardLoading", false)
+                    commit("setDashboardData", res.data)
+                    return res;
+                })
+                .catch((err) => {
+                    commit("setCurrentSurveyLoading", false)
+                    return err
+                })
 
         },
         getSurveys({ commit }, { url = null } = {}) {
@@ -157,9 +163,7 @@ const store = createStore({
             state.user.token = null
         },
         setUser: (state, userData) => {
-            state.user.token = userData.token
-            state.user.data = userData.user;
-            sessionStorage.setItem('TOKEN', userData.token)
+            state.user.data = userData
         },
         setToken: (state, token) => {
             state.user.token = token;

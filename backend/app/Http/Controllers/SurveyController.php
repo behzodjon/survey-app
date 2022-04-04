@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Survey;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Models\SurveyAnswer;
 use Illuminate\Http\Request;
 use App\Models\SurveyQuestion;
+use Illuminate\Validation\Rule;
+use App\Models\SurveyQuestionAnswer;
 use Illuminate\Support\Facades\File;
 use App\Http\Resources\SurveyResource;
 use App\Http\Requests\StoreSurveyRequest;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\UpdateSurveyRequest;
 use App\Http\Requests\StoreSurveyAnswerRequest;
-use App\Models\SurveyAnswer;
-use App\Models\SurveyQuestionAnswer;
 
 class SurveyController extends Controller
 {
